@@ -1,3 +1,4 @@
+import axios from "axios";
 import Logo from "../assets/logo.svg";
 import { useCallback, useState } from "react";
 export default function Register() {
@@ -14,6 +15,11 @@ export default function Register() {
       setVariant("LOGIN");
     }
   }, [variant]);
+
+  const register = async (e) => {
+    e.preventDefault();
+    await axios.post("/register", { email, name, password });
+  };
   return (
     <div
       className={`flex min-h-full flex-col justify-center py-12 sm:px-6 lg:px-8 bg-gray-100`}
@@ -28,7 +34,7 @@ export default function Register() {
       </div>
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6">
+          <form className="space-y-6" onSubmit={register}>
             {variant === "REGISTER" && (
               <div>
                 <label className="block text-sm font-medium leading-6 text-gray-900">
