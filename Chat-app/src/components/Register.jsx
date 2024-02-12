@@ -1,10 +1,12 @@
 import axios from "axios";
 import Logo from "../assets/logo.svg";
-import { useCallback, useState } from "react";
+import { useCallback, useContext, useState } from "react";
+import { UserContext } from "../context/UserContext";
 export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const { setUserEmail, setId } = useContext(UserContext);
 
   const [variant, setVariant] = useState("LOGIN");
 
@@ -18,7 +20,9 @@ export default function Register() {
 
   const register = async (e) => {
     e.preventDefault();
-    await axios.post("/register", { email, name, password });
+    const { data } = await axios.post("/register", { name, email, password });
+    setUserEmail(email);
+    setId(data.id);
   };
   return (
     <div
@@ -53,7 +57,7 @@ export default function Register() {
             )}
             <div>
               <label className="block text-sm font-medium leading-6 text-gray-900">
-                Email Id
+                EmailId
               </label>
               <div className="mt-2">
                 <input
