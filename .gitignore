@@ -1,0 +1,6 @@
+api/.env
+Chat-app/.env
+.idea
+api/node_modules
+Chat-app/node_modules
+api/uploads/*
