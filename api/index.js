@@ -6,6 +6,7 @@ const jwt = require("jsonwebtoken");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const bcrypt = require("bcryptjs");
+const ws = require("ws");
 
 dotenv.config();
 mongoose.connect(process.env.MONGO_URL);
@@ -87,4 +88,4 @@ app.post("/register", async (req, res) => {
     res.status(500).json("error");
   }
 });
-app.listen(4000);
+const server = app.listen(4000);
