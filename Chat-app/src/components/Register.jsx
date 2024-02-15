@@ -18,9 +18,10 @@ export default function Register() {
     }
   }, [variant]);
 
-  const register = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const { data } = await axios.post("/register", { name, email, password });
+    const url = variant === "LOGIN" ? "login" : "register";
+    const { data } = await axios.post(url, { name, email, password });
     setUserEmail(email);
     setId(data.id);
   };
@@ -38,7 +39,7 @@ export default function Register() {
       </div>
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
         <div className="bg-white px-4 py-8 shadow sm:rounded-lg sm:px-10">
-          <form className="space-y-6" onSubmit={register}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             {variant === "REGISTER" && (
               <div>
                 <label className="block text-sm font-medium leading-6 text-gray-900">
@@ -87,7 +88,7 @@ export default function Register() {
               type="submit"
               className="flex justify-center rounded-md px-3 py-2 w-full text-sm font-semibold focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 bg-sky-500 hover:bg-sky-600 focus-visible:outline-sky-600 text-white"
             >
-              Login
+              {variant === "LOGIN" ? "Login" : "Register"}
             </button>
           </form>
           <div className="flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500">
