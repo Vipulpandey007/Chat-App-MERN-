@@ -110,5 +110,14 @@ wss.on("connection", (connection, req) => {
     }
   }
 
-  console.log([...wss.clients].map((c) => c.email));
+  [...wss.clients].forEach((client) =>
+    client.send(
+      JSON.stringify({
+        online: [...wss.clients].map((c) => ({
+          userId: c.userId,
+          email: c.email,
+        })),
+      })
+    )
+  );
 });
