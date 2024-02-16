@@ -24,6 +24,7 @@ const Chat = () => {
       showOnline(messageData.online);
     }
   };
+  //console.log(online);
   return (
     <div className="flex h-screen">
       <div className="bg-white w-1/3">
