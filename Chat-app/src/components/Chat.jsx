@@ -3,6 +3,7 @@ import Avatar from "./Avatar";
 import Logo from "./Logo";
 import { UserContext } from "../context/UserContext";
 import EmptyMessage from "./EmptyMessage";
+import { uniqBy } from "lodash";
 
 const Chat = () => {
   const [ws, setWs] = useState(null);
@@ -27,14 +28,11 @@ const Chat = () => {
 
   const handleMessage = (e) => {
     const messageData = JSON.parse(e.data);
-
+    console.log(e, messageData);
     if ("online" in messageData) {
       showOnline(messageData.online);
-    } else {
-      setNewMessages((prev) => [
-        ...prev,
-        { text: messageData.text, isOur: false },
-      ]);
+    } else if ("text" in messageData) {
+      setNewMessages((prev) => [...prev, { ...messageData }]);
     }
   };
 
@@ -47,11 +45,17 @@ const Chat = () => {
       })
     );
     setNewMessage("");
-    setNewMessages((prev) => [...prev, { text: newMesssage, isOur: true }]);
+    setNewMessages((prev) => [
+      ...prev,
+      { text: newMesssage, sender: id, recipient: selectedPeople },
+    ]);
   };
 
   const onlinePeople = { ...online };
   delete onlinePeople[id];
+
+  const messageWithoutDuplicate = uniqBy(messages, "id");
+
   return (
     <div className="flex h-screen">
       <div className="bg-white w-1/3 ">
@@ -81,8 +85,13 @@ const Chat = () => {
       ) : (
         <div className="flex flex-col bg-blue-50 w-2/3 p-2">
           <div className="flex-grow">
-            {messages.map((m, i) => (
-              <div key={i}>{m.text}</div>
+            {messageWithoutDuplicate.map((m, i) => (
+              <div key={i}>
+                sender:{m.sender}
+                <br />
+                my id :{id}
+                {m.text}
+              </div>
             ))}
           </div>
           <form className="flex gap-2" onSubmit={sendMessage}>
