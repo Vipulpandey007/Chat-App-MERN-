@@ -10,6 +10,7 @@ const Chat = () => {
   const [online, setOnline] = useState({});
   const { id } = useContext(UserContext);
   const [newMesssage, setNewMessage] = useState("");
+  const [messages, setNewMessages] = useState([]);
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
@@ -29,6 +30,11 @@ const Chat = () => {
 
     if ("online" in messageData) {
       showOnline(messageData.online);
+    } else {
+      setNewMessages((prev) => [
+        ...prev,
+        { text: messageData.text, isOur: false },
+      ]);
     }
   };
 
@@ -36,12 +42,12 @@ const Chat = () => {
     e.preventDefault();
     ws.send(
       JSON.stringify({
-        message: {
-          recipient: selectedPeople,
-          text: newMesssage,
-        },
+        recipient: selectedPeople,
+        text: newMesssage,
       })
     );
+    setNewMessage("");
+    setNewMessages((prev) => [...prev, { text: newMesssage, isOur: true }]);
   };
 
   const onlinePeople = { ...online };
@@ -74,7 +80,11 @@ const Chat = () => {
         <EmptyMessage />
       ) : (
         <div className="flex flex-col bg-blue-50 w-2/3 p-2">
-          <div className="flex-grow"> Welcome Messages</div>
+          <div className="flex-grow">
+            {messages.map((m, i) => (
+              <div key={i}>{m.text}</div>
+            ))}
+          </div>
           <form className="flex gap-2" onSubmit={sendMessage}>
             <input
               value={newMesssage}
