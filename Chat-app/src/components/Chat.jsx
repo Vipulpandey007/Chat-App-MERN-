@@ -4,6 +4,7 @@ import Logo from "./Logo";
 import { UserContext } from "../context/UserContext";
 import EmptyMessage from "./EmptyMessage";
 import { uniqBy } from "lodash";
+import axios from "axios";
 
 const Chat = () => {
   const [ws, setWs] = useState(null);
@@ -63,6 +64,12 @@ const Chat = () => {
       div.scrollIntoView({ behavior: "smooth", block: "end" });
     }
   }, [messages]);
+
+  useEffect(() => {
+    if (selectedPeople) {
+      axios.get("/messages/" + selectedPeople);
+    }
+  });
 
   const onlinePeople = { ...online };
   delete onlinePeople[id];
