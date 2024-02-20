@@ -47,7 +47,12 @@ const Chat = () => {
     setNewMessage("");
     setNewMessages((prev) => [
       ...prev,
-      { text: newMesssage, sender: id, recipient: selectedPeople },
+      {
+        text: newMesssage,
+        sender: id,
+        recipient: selectedPeople,
+        id: Date.now(),
+      },
     ]);
   };
 
@@ -85,14 +90,28 @@ const Chat = () => {
       ) : (
         <div className="flex flex-col bg-blue-50 w-2/3 p-2">
           <div className="flex-grow">
-            {messageWithoutDuplicate.map((m, i) => (
-              <div key={i}>
-                sender:{m.sender}
-                <br />
-                my id :{id}
-                {m.text}
-              </div>
-            ))}
+            <div className="overflow-y-scroll">
+              {messageWithoutDuplicate.map((m, i) => (
+                <div
+                  key={i}
+                  className={m.sender === id ? "text-right" : "text-left"}
+                >
+                  <div
+                    className={
+                      "text-left inline-block p-2 my-2 rounded-lg text-sm " +
+                      (m.sender === id
+                        ? "bg-blue-500 text-white"
+                        : "bg-white text-gray-700")
+                    }
+                  >
+                    sender:{m.sender}
+                    <br />
+                    my id :{id}
+                    {m.text}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           <form className="flex gap-2" onSubmit={sendMessage}>
             <input
