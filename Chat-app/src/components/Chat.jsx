@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import Avatar from "./Avatar";
 import Logo from "./Logo";
 import { UserContext } from "../context/UserContext";
@@ -12,6 +12,7 @@ const Chat = () => {
   const { id } = useContext(UserContext);
   const [newMesssage, setNewMessage] = useState("");
   const [messages, setNewMessages] = useState([]);
+  const messageRef = useRef();
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
@@ -56,6 +57,13 @@ const Chat = () => {
     ]);
   };
 
+  useEffect(() => {
+    const div = messageRef.current;
+    if (div) {
+      div.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }, [messages]);
+
   const onlinePeople = { ...online };
   delete onlinePeople[id];
 
@@ -90,27 +98,30 @@ const Chat = () => {
       ) : (
         <div className="flex flex-col bg-blue-50 w-2/3 p-2">
           <div className="flex-grow">
-            <div className="overflow-y-scroll">
-              {messageWithoutDuplicate.map((m, i) => (
-                <div
-                  key={i}
-                  className={m.sender === id ? "text-right" : "text-left"}
-                >
+            <div className="relative h-full">
+              <div className="overflow-y-scroll absolute inset-0">
+                {messageWithoutDuplicate.map((m, i) => (
                   <div
-                    className={
-                      "text-left inline-block p-2 my-2 rounded-lg text-sm " +
-                      (m.sender === id
-                        ? "bg-blue-500 text-white"
-                        : "bg-white text-gray-700")
-                    }
+                    key={i}
+                    className={m.sender === id ? "text-right" : "text-left"}
                   >
-                    sender:{m.sender}
-                    <br />
-                    my id :{id}
-                    {m.text}
+                    <div
+                      className={
+                        "text-left inline-block p-2 my-2 rounded-lg text-sm " +
+                        (m.sender === id
+                          ? "bg-blue-500 text-white"
+                          : "bg-white text-gray-700")
+                      }
+                    >
+                      sender:{m.sender}
+                      <br />
+                      my id :{id}
+                      {m.text}
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+                <div ref={messageRef}></div>
+              </div>
             </div>
           </div>
           <form className="flex gap-2" onSubmit={sendMessage}>
