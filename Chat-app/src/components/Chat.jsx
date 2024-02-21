@@ -15,11 +15,20 @@ const Chat = () => {
   const [messages, setNewMessages] = useState([]);
   const messageRef = useRef();
   useEffect(() => {
+    connectToWs();
+  }, []);
+
+  const connectToWs = () => {
     const ws = new WebSocket("ws://localhost:4000");
     setWs(ws);
     ws.addEventListener("message", handleMessage);
-  }, []);
-
+    ws.addEventListener("close", () => {
+      setTimeout(() => {
+        console.log("Disconnected trying to reconnect.");
+        connectToWs();
+      }, 1000);
+    });
+  };
   const showOnline = (peoples) => {
     const people = {};
     peoples.forEach(({ userId, email }) => {
@@ -53,7 +62,7 @@ const Chat = () => {
         text: newMesssage,
         sender: id,
         recipient: selectedPeople,
-        id: Date.now(),
+        _id: Date.now(),
       },
     ]);
   };
@@ -67,14 +76,16 @@ const Chat = () => {
 
   useEffect(() => {
     if (selectedPeople) {
-      axios.get("/messages/" + selectedPeople);
+      axios.get("/messages/" + selectedPeople).then((res) => {
+        setNewMessages(res.data);
+      });
     }
-  });
+  }, [selectedPeople]);
 
   const onlinePeople = { ...online };
   delete onlinePeople[id];
 
-  const messageWithoutDuplicate = uniqBy(messages, "id");
+  const messageWithoutDuplicate = uniqBy(messages, "_id");
 
   return (
     <div className="flex h-screen">
@@ -94,7 +105,7 @@ const Chat = () => {
               <div className="w-1 bg-blue-500 h-12 rounded-r-md"></div>
             )}
             <div className="flex gap-2 py-2 pl-4 items-center">
-              <Avatar email={online[userId]} userId={userId} />
+              <Avatar online={true} email={online[userId]} userId={userId} />
               <span className="text-gray-700">{online[userId]}</span>
             </div>
           </div>
@@ -120,9 +131,6 @@ const Chat = () => {
                           : "bg-white text-gray-700")
                       }
                     >
-                      sender:{m.sender}
-                      <br />
-                      my id :{id}
                       {m.text}
                     </div>
                   </div>
