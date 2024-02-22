@@ -53,6 +53,11 @@ app.get("/messages/:userId", async (req, res) => {
   res.json(messages);
 });
 
+app.get("/people", async (req, res) => {
+  const users = await User.find({}, { _id: 1, email: 1 });
+  res.json(users);
+});
+
 app.get("/profile", (req, res) => {
   const token = req.cookies?.token;
   if (token) {
@@ -84,6 +89,10 @@ app.post("/login", async (req, res) => {
       );
     }
   }
+});
+
+app.post("/logout", async (req, res) => {
+  res.cookie("token", "", { sameSite: "none", secure: true }).json("ok");
 });
 
 app.post("/register", async (req, res) => {
@@ -119,6 +128,36 @@ const server = app.listen(4000);
 
 const wss = new ws.WebSocketServer({ server });
 wss.on("connection", (connection, req) => {
+  function notifyAboutOnlinePeople() {
+    [...wss.clients].forEach((client) =>
+      client.send(
+        JSON.stringify({
+          online: [...wss.clients].map((c) => ({
+            userId: c.userId,
+            email: c.email,
+          })),
+        })
+      )
+    );
+  }
+
+  connection.isAlive = true;
+
+  connection.timer = setInterval(() => {
+    connection.ping();
+    connection.deathTimer = setTimeout(() => {
+      connection.isAlive = false;
+      clearInterval(connection.timer);
+      connection.terminate();
+      notifyAboutOnlinePeople();
+      console.log("dead");
+    }, 1000);
+  }, 5000);
+
+  connection.on("pong", () => {
+    clearTimeout(connection.deathTimer);
+  });
+
   const cookies = req.headers.cookie;
   if (cookies) {
     const tokenCookieString = cookies
@@ -160,15 +199,5 @@ wss.on("connection", (connection, req) => {
         );
     }
   });
-
-  [...wss.clients].forEach((client) =>
-    client.send(
-      JSON.stringify({
-        online: [...wss.clients].map((c) => ({
-          userId: c.userId,
-          email: c.email,
-        })),
-      })
-    )
-  );
+  notifyAboutOnlinePeople();
 });
