@@ -22,6 +22,9 @@ const Avatar = ({ userId, email, online }) => {
       {online && (
         <div className="absolute w-3 h-3  bg-green-600 bottom-0 right-0 rounded-full border border-white shadow-lg shadow-black"></div>
       )}
+      {!online && (
+        <div className="absolute w-3 h-3  bg-gray-600 bottom-0 right-0 rounded-full border border-white shadow-lg shadow-black"></div>
+      )}
     </div>
   );
 };
